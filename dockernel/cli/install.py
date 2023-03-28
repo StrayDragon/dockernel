@@ -16,9 +16,13 @@ import sys
 
 
 arguments = subparsers.add_parser(
-    __name__.split(".")[-1], help="Install dockerized kernel image into Jupyter.",
+    __name__.split(".")[-1],
+    help="Install dockerized kernel image into Jupyter.",
 )
-arguments.add_argument("image_name", help="Name of the docker image to use.",)
+arguments.add_argument(
+    "image_name",
+    help="Name of the docker image to use.",
+)
 arguments.add_argument(
     "--name",
     help="Display name for the kernelspec. " "By default, container hostname is used.",

@@ -15,14 +15,14 @@ from pathlib import Path
 from .version import version as dockernel_version
 
 
-KERNELSPEC_FILENAME = 'kernel.json'
-KERNELSPEC_STORE_DIRNAME = 'kernels'
-DOCKERNEL_VERSIONFILE_FILENAME = 'DOCKERNEL'
+KERNELSPEC_FILENAME = "kernel.json"
+KERNELSPEC_STORE_DIRNAME = "kernels"
+DOCKERNEL_VERSIONFILE_FILENAME = "DOCKERNEL"
 
 
 class InterruptMode(str, Enum):
-    signal = 'signal'
-    message = 'message'
+    signal = "signal"
+    message = "message"
 
 
 class Kernelspec:
@@ -33,23 +33,27 @@ class Kernelspec:
 
     Use str() on objects of this class to render the kernelspec file contents.
     """
-    def __init__(self,
-                 argv: List[str], display_name: str, language: str,
-                 interrupt_mode: Optional[InterruptMode] = None,
-                 env: Optional[str] = None,
-                 metadata: Optional[Dict[str, str]] = None
-                 ) -> None:
+
+    def __init__(
+        self,
+        argv: List[str],
+        display_name: str,
+        language: str,
+        interrupt_mode: Optional[InterruptMode] = None,
+        env: Optional[str] = None,
+        metadata: Optional[Dict[str, str]] = None,
+    ) -> None:
         self._spec = {}
-        self._spec['argv'] = argv
-        self._spec['display_name'] = display_name
-        self._spec['language'] = language
+        self._spec["argv"] = argv
+        self._spec["display_name"] = display_name
+        self._spec["language"] = language
 
         if interrupt_mode is not None:
-            self._spec['interrupt_mode'] = interrupt_mode
+            self._spec["interrupt_mode"] = interrupt_mode
         if env is not None:
-            self._spec['env'] = env
+            self._spec["env"] = env
         if metadata is not None:
-            self._spec['metadata'] = metadata
+            self._spec["metadata"] = metadata
 
     def json(self):
         return json.dumps(self._spec)
@@ -86,7 +90,7 @@ def user_kernelspec_store(system_type: str) -> Path:
     elif system_type == "Darwin":
         kernelspec_dir_path = "~/Library/Jupyter/kernels"
     else:
-        raise ValueError(f'unknown system type: {system_type}')
+        raise ValueError(f"unknown system type: {system_type}")
 
     return Path(kernelspec_dir_path).expanduser()
 
@@ -114,7 +118,7 @@ def kernelspec_dir(kernelspec_store: Path, kernel_id: str) -> Path:
     Path
         Path object to the directory where kernelspec should be installed.
     """
-    allowed_characters = set(string.ascii_letters + string.digits + '_.-')
+    allowed_characters = set(string.ascii_letters + string.digits + "_.-")
     if not set(kernel_id) <= allowed_characters:
         raise ValueError("kernel_id contains forbidden characters")
 
@@ -136,9 +140,11 @@ def ensure_kernelspec_store_exists(kernelspec_store: Path) -> None:
         "kernels".
     """
     if kernelspec_store.name != KERNELSPEC_STORE_DIRNAME:
-        raise ValueError("not a valid kernelspec store name: "
-                         f"{repr(kernelspec_store.name)} "
-                         "- should be 'kernels'.")
+        raise ValueError(
+            "not a valid kernelspec store name: "
+            f"{repr(kernelspec_store.name)} "
+            "- should be 'kernels'."
+        )
     if not kernelspec_store.exists():
         kernelspec_store.mkdir()
 
@@ -166,7 +172,7 @@ def install_kernelspec(kernelspec_dir: Path, kernelspec: Kernelspec) -> None:
         raise ValueError(f"kernelspec already exists: {kernelspec_dir}.")
 
     kernelspec_dir.mkdir()
-    kernelspec_file = kernelspec_dir/KERNELSPEC_FILENAME
+    kernelspec_file = kernelspec_dir / KERNELSPEC_FILENAME
     kernelspec_file.write_text(kernelspec.json())
     add_dockernel_versionfile(kernelspec_dir)
 
@@ -181,5 +187,5 @@ def add_dockernel_versionfile(kernelspec_dir: Path) -> None:
     kernelspec_dir
         Path object to the store where the kernel should be installed.
     """
-    versionfile_path = kernelspec_dir/DOCKERNEL_VERSIONFILE_FILENAME
-    versionfile_path.write_text(dockernel_version + '\n')
+    versionfile_path = kernelspec_dir / DOCKERNEL_VERSIONFILE_FILENAME
+    versionfile_path.write_text(dockernel_version + "\n")
