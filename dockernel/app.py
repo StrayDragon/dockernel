@@ -1,5 +1,9 @@
 from typing import List
 from .cli import main_arguments, run_subcommand
+from rich import traceback
+traceback.install(
+    show_locals=True,
+)
 
 
 def run(argv: List) -> int:
