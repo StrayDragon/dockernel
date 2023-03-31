@@ -44,7 +44,7 @@ arguments.add_argument(
     default=f"{sys.prefix}/share/jupyter/kernels",
 )
 arguments.add_argument(
-    "--docker-volumns",
+    "--docker-volumes",
     help="same like docker run -v, e.g. '/home/xxx:/home/xxx,/home/a/b:/opt/a/b'",
     default="",
 )
@@ -112,14 +112,14 @@ def install(args: Namespace) -> int:
     store_path = user_kernelspec_store(system_type)
     ensure_kernelspec_store_exists(store_path)
 
-    docker_volumns: str = args.docker_volumns
-    if not docker_volumns:
-        docker_volumns = ""
+    docker_volumes: str = args.docker_volumes
+    if not docker_volumes:
+        docker_volumes = ""
 
     argv = generate_kernelspec_argv(
         args.image_name,
         system_type,
-        docker_volumes=docker_volumns,
+        docker_volumes=docker_volumes,
     )
 
     name = args.image_name if args.name is None else args.name
