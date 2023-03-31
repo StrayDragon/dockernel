@@ -1,5 +1,45 @@
-[build-system]
-requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+dev = [
+    "mypy>=0.971",
+    "pytest>=7.0.1",
+]
 
-[tool.setuptools_scm]
-write_to = "dockernel/version.py"
+[project]
+name = "dockernel"
+version = "1.0.2"
+description = "Utility for creating dockerized Jupyter kernels"
+authors = [{ name = "Blazej Michalik", email = "im.mr.mino@gmail.com" }]
+maintainers = [{ name = "L8ng", email = "straydragonv@gmail.com" }]
+dependencies = ["docker", "rich"]
+requires-python = ">=3.6"
+readme = "README.md"
+license = { text = "MIT" }
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: BSD",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[project.urls]
+Source = "https://github.com/MrMino/dockernel"
+
+[project.scripts]
+dockernel = "dockernel.__main__:main"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
