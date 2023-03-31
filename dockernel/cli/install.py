@@ -1,19 +1,19 @@
-from pathlib import Path
 import platform
-import docker
-from typing import List
-from argparse import Namespace
-from dockernel.cli.main import subparsers, set_subcommand_func
-from dockernel.kernelspec import (
-    Kernelspec,
-    InterruptMode,
-    user_kernelspec_store,
-    ensure_kernelspec_store_exists,
-    kernelspec_dir,
-    install_kernelspec,
-)
 import sys
+from argparse import Namespace
+from pathlib import Path
+from typing import Union
 
+import docker
+
+from dockernel.cli.main import set_subcommand_func, subparsers
+from dockernel.kernelspec import (
+    InterruptMode,
+    Kernelspec,
+    ensure_kernelspec_store_exists,
+    install_kernelspec,
+    user_kernelspec_store,
+)
 
 arguments = subparsers.add_parser(
     __name__.split(".")[-1],
@@ -40,8 +40,7 @@ arguments.add_argument(
 )
 arguments.add_argument(
     "--kernels-path",
-    help="kernels path to install,"
-    " see https://jupyter-client.readthedocs.io/en/stable/kernels.html",
+    help="kernels path to install," " see https://jupyter-client.readthedocs.io/en/stable/kernels.html",
     default=f"{sys.prefix}/share/jupyter/kernels",
 )
 arguments.add_argument(
@@ -49,12 +48,17 @@ arguments.add_argument(
     help="same like docker run -v, e.g. '/home/xxx:/home/xxx,/home/a/b:/opt/a/b'",
     default="",
 )
+arguments.add_argument(
+    "--force",
+    help="force install",
+    default="",
+)
 
 
 JUPYTER_CONNECTION_FILE_TEMPLATE = "{connection_file}"
 
 
-def python_argv(system_type: str) -> List[str]:
+def python_argv(system_type: str) -> list[str]:
     """Return proper command-line vector for python interpreter"""
     if system_type == "Linux" or system_type == "Darwin":
         argv = ["/usr/bin/env", "python", "-m"]
@@ -65,19 +69,36 @@ def python_argv(system_type: str) -> List[str]:
     return argv
 
 
+def _flatten(elems: list[Union[list[str], str]]) -> list[str]:
+    res = []
+    for elem in elems:
+        if isinstance(elem, list):
+            for e in elem:
+                res.append(e)
+        else:
+            res.append(elem)
+    return res
+
+
 def generate_kernelspec_argv(
     image_name: str,
     system_type: str,
-    docker_volumes: str,
-) -> List[str]:
-    dockernel_argv = [
-        "dockernel",
-        "start",
-        "-v",
-        docker_volumes,
-        image_name,
-        JUPYTER_CONNECTION_FILE_TEMPLATE,
-    ]
+    docker_volumes: str = "",
+) -> list[str]:
+    dockernel_argv = _flatten(
+        [
+            "dockernel",
+            "start",
+            [
+                "-v",
+                docker_volumes,
+            ]
+            if docker_volumes
+            else [],
+            image_name,
+            JUPYTER_CONNECTION_FILE_TEMPLATE,
+        ]
+    )
     return python_argv(system_type) + dockernel_argv
 
 
@@ -98,7 +119,7 @@ def install(args: Namespace) -> int:
     argv = generate_kernelspec_argv(
         args.image_name,
         system_type,
-        docker_volumns=docker_volumns,
+        docker_volumes=docker_volumns,
     )
 
     name = args.image_name if args.name is None else args.name
@@ -120,12 +141,14 @@ def install(args: Namespace) -> int:
     if not kernels_path_str:
         raise ValueError("--language must not empty")
 
+    force = bool(args.force)
+
     # docker_client = docker.from_env()
     # kernel_id = image_digest(docker_client, args.image_name)
     # location = kernelspec_dir(store_path, kernel_id)
 
     location = Path(kernels_path_str) / name
-    install_kernelspec(location, kernelspec)
+    install_kernelspec(location, kernelspec, force=force)
     # TODO: bare numbered exit statusses seem bad
     return 0
 

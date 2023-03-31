@@ -6,14 +6,13 @@ Where term "kernelspec store" is used, it references the directory where
 jupyter will look for kernelspec dirs.
 """
 import json
-import string
 import os
-from typing import List, Dict, Optional
+import string
 from enum import Enum
 from pathlib import Path
+from typing import Optional
 
 from .version import version as dockernel_version
-
 
 KERNELSPEC_FILENAME = "kernel.json"
 KERNELSPEC_STORE_DIRNAME = "kernels"
@@ -36,12 +35,12 @@ class Kernelspec:
 
     def __init__(
         self,
-        argv: List[str],
+        argv: list[str],
         display_name: str,
         language: str,
         interrupt_mode: Optional[InterruptMode] = None,
         env: Optional[str] = None,
-        metadata: Optional[Dict[str, str]] = None,
+        metadata: Optional[dict[str, str]] = None,
     ) -> None:
         self._spec = {}
         self._spec["argv"] = argv
@@ -141,15 +140,17 @@ def ensure_kernelspec_store_exists(kernelspec_store: Path) -> None:
     """
     if kernelspec_store.name != KERNELSPEC_STORE_DIRNAME:
         raise ValueError(
-            "not a valid kernelspec store name: "
-            f"{repr(kernelspec_store.name)} "
-            "- should be 'kernels'."
+            "not a valid kernelspec store name: " f"{repr(kernelspec_store.name)} " "- should be 'kernels'."
         )
     if not kernelspec_store.exists():
         kernelspec_store.mkdir()
 
 
-def install_kernelspec(kernelspec_dir: Path, kernelspec: Kernelspec) -> None:
+def install_kernelspec(
+    kernelspec_dir: Path,
+    kernelspec: Kernelspec,
+    force: bool = False,
+) -> None:
     """Generate appropriate kernelspec under the specified path.
 
     Creates a directory for the kernelspec and populates it with the spec
@@ -168,10 +169,10 @@ def install_kernelspec(kernelspec_dir: Path, kernelspec: Kernelspec) -> None:
         If a kernelspec already exists, i.e. the kernelspec directory is
         present.
     """
-    if kernelspec_dir.exists():
-        raise ValueError(f"kernelspec already exists: {kernelspec_dir}.")
+    if not force and kernelspec_dir.exists():
+        raise ValueError(f"kernelspec already exists: {kernelspec_dir}, " "try pass '--force' or check it!")
 
-    kernelspec_dir.mkdir()
+    kernelspec_dir.mkdir(parents=True, exist_ok=True)
     kernelspec_file = kernelspec_dir / KERNELSPEC_FILENAME
     kernelspec_file.write_text(kernelspec.json())
     add_dockernel_versionfile(kernelspec_dir)
