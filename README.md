@@ -1,4 +1,5 @@
 # Dockernel
+[![pdm-managed](https://img.shields.io/badge/pdm-managed-blueviolet)](https://pdm.fming.dev)
 
 Makes it possible to utilize arbitrary docker images as Jupyter kernels.
 
