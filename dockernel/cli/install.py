@@ -3,8 +3,8 @@ import platform
 import docker
 from typing import List
 from argparse import Namespace
-from .main import subparsers, set_subcommand_func
-from ..kernelspec import (
+from dockernel.cli.main import subparsers, set_subcommand_func
+from dockernel.kernelspec import (
     Kernelspec,
     InterruptMode,
     user_kernelspec_store,
@@ -40,8 +40,14 @@ arguments.add_argument(
 )
 arguments.add_argument(
     "--kernels-path",
-    help="kernels path to install, see https://jupyter-client.readthedocs.io/en/stable/kernels.html",
+    help="kernels path to install,"
+    " see https://jupyter-client.readthedocs.io/en/stable/kernels.html",
     default=f"{sys.prefix}/share/jupyter/kernels",
+)
+arguments.add_argument(
+    "--docker-volumns",
+    help="same like docker run -v, e.g. '/home/xxx:/home/xxx,/home/a/b:/opt/a/b'",
+    default="",
 )
 
 
@@ -59,10 +65,16 @@ def python_argv(system_type: str) -> List[str]:
     return argv
 
 
-def generate_kernelspec_argv(image_name: str, system_type: str) -> List[str]:
+def generate_kernelspec_argv(
+    image_name: str,
+    system_type: str,
+    docker_volumes: str,
+) -> List[str]:
     dockernel_argv = [
         "dockernel",
         "start",
+        "-v",
+        docker_volumes,
         image_name,
         JUPYTER_CONNECTION_FILE_TEMPLATE,
     ]
@@ -79,7 +91,15 @@ def install(args: Namespace) -> int:
     store_path = user_kernelspec_store(system_type)
     ensure_kernelspec_store_exists(store_path)
 
-    argv = generate_kernelspec_argv(args.image_name, system_type)
+    docker_volumns: str = args.docker_volumns
+    if not docker_volumns:
+        docker_volumns = ""
+
+    argv = generate_kernelspec_argv(
+        args.image_name,
+        system_type,
+        docker_volumns=docker_volumns,
+    )
 
     name = args.image_name if args.name is None else args.name
     if not name:
