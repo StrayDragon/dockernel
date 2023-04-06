@@ -1,3 +1,5 @@
+.mypy_cache
+.ruff_cache
 .pdm.toml
 .vscode
 # Jupyter notebooks
