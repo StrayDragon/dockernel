@@ -45,7 +45,7 @@ def uninstall(args: Namespace) -> int:
 
     target_kernel_dir: Path = kernels_path / name
     if not all({target_kernel_dir.exists(), target_kernel_dir.is_dir()}):
-        rich.print("[yellow]WARNING[/yellow]: not found target kernel config dir, do noting!")
+        rich.print("[yellow]WARNING[/yellow]: not found target kernelspec, do nothing!")
     else:
         if is_dry_run:
             rich.print(f"[green]OK[/green]: ' {str(target_kernel_dir)} ' will be uninstalled (removed)")
