@@ -15,15 +15,17 @@ arguments.add_argument(
     "--name",
     help="the installed image_name or --name value from install cmd",
 )
+
+DEFAULT_KERNELS_PATH = f"{sys.prefix}/share/jupyter/kernels"
 arguments.add_argument(
     "--kernels-path",
-    help="kernels path to install, see https://jupyter-client.readthedocs.io/en/stable/kernels.html",
-    default=f"{sys.prefix}/share/jupyter/kernels",
+    help=f"kernels path to install, now env is ' {DEFAULT_KERNELS_PATH} ', see https://jupyter-client.readthedocs.io/en/stable/kernels.html",  # noqa: E501
+    default=DEFAULT_KERNELS_PATH,
 )
 arguments.add_argument(
     "--dry-run",
     help="not do actual operation, help for debug",
-    default=False,
+    action="store_true",
 )
 
 

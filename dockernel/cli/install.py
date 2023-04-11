@@ -45,10 +45,12 @@ arguments.add_argument(
     "By default, empty value is used.",
     default="",
 )
+
+DEFAULT_KERNELS_PATH = f"{sys.prefix}/share/jupyter/kernels"
 arguments.add_argument(
     "--kernels-path",
-    help="kernels path to install," " see https://jupyter-client.readthedocs.io/en/stable/kernels.html",
-    default=f"{sys.prefix}/share/jupyter/kernels",
+    help=f"kernels path to install, now env is ' {DEFAULT_KERNELS_PATH} ', see https://jupyter-client.readthedocs.io/en/stable/kernels.html",  # noqa: E501
+    default=DEFAULT_KERNELS_PATH,
 )
 arguments.add_argument(
     "--docker-volumes",
@@ -120,11 +122,11 @@ def _show_installed_kernelspecs_by_rich(kernels_path: Path) -> None:
     if kernels_path.exists() and kernels_path.is_dir():
         table = Table(title="kernelspec")
 
-        table.add_column("Name", justify="right", style="magenta", no_wrap=True)
-        table.add_column("Path", justify="right", style="green")
+        table.add_column("Name", justify="left", style="magenta", no_wrap=True)
+        table.add_column("Path", justify="left", style="green")
 
         for k in kernels_path.glob("*"):
-            if k.is_dir():
+            if not k.is_dir():
                 continue
             table.add_row(k.name, str(k))
         rich.print(table)
