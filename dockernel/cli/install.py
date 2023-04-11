@@ -21,14 +21,14 @@ arguments = subparsers.add_parser(
     help="Install dockerized kernel image into Jupyter.",
 )
 arguments.add_argument(
-    "image_name",
+    "--image-name",
     help="Name of the docker image to use.",
     default="",
 )
 arguments.add_argument(
     "--list",
     help="show installed kernelspecs",
-    default=False,
+    action="store_true",
 )
 arguments.add_argument(
     "--name",
@@ -58,7 +58,7 @@ arguments.add_argument(
 arguments.add_argument(
     "--force",
     help="force install",
-    default="",
+    action="store_true",
 )
 
 
@@ -129,7 +129,7 @@ def _show_installed_kernelspecs_by_rich(kernels_path: Path) -> None:
             table.add_row(k.name, str(k))
         rich.print(table)
     else:
-        rich.print(f"[red]WARNING[/red]: kernelspec dir not exist? check ('{str(kernels_path)}')")
+        rich.print(f"[red]WARNING[/red]: kernelspec dir not exist? check ' {str(kernels_path)} '!")
 
 
 def install(args: Namespace) -> int:

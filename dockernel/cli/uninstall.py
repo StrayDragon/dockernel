@@ -12,9 +12,8 @@ arguments = subparsers.add_parser(
     help="Uninstall dockerized kernelspec",
 )
 arguments.add_argument(
-    "name",
+    "--name",
     help="the installed image_name or --name value from install cmd",
-    default="",
 )
 arguments.add_argument(
     "--kernels-path",
@@ -47,10 +46,10 @@ def uninstall(args: Namespace) -> int:
         rich.print("[yellow]WARNING[/yellow]: not found target kernel config dir, do noting!")
     else:
         if is_dry_run:
-            rich.print(f"[green]OK[/green]: '{str(target_kernel_dir)}' will be uninstalled (removed)")
+            rich.print(f"[green]OK[/green]: ' {str(target_kernel_dir)} ' will be uninstalled (removed)")
         else:
             shutil.rmtree(target_kernel_dir)
-            rich.print(f"[green]OK[/green]: '{str(target_kernel_dir)}' already uninstalled (removed)")
+            rich.print(f"[green]OK[/green]: ' {str(target_kernel_dir)} ' already uninstalled (removed)")
 
     return 0
 
