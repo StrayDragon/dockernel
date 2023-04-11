@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Union
 
 import docker
+import rich
 
 from dockernel.cli.main import set_subcommand_func, subparsers
 from dockernel.kernelspec import (
@@ -22,11 +23,17 @@ arguments = subparsers.add_parser(
 arguments.add_argument(
     "image_name",
     help="Name of the docker image to use.",
+    default="",
+)
+arguments.add_argument(
+    "--list",
+    help="show installed kernelspecs",
+    default=False,
 )
 arguments.add_argument(
     "--name",
     help="Display name for the kernelspec. " "By default, container hostname is used.",
-    default=None,
+    default="",
 )
 arguments.add_argument(
     "--language",
@@ -107,7 +114,34 @@ def image_digest(docker_client: docker.client.DockerClient, image_name: str) -> 
     return image.attrs["ContainerConfig"]["Hostname"]
 
 
+def _show_installed_kernelspecs_by_rich(kernels_path: Path) -> None:
+    from rich.table import Table
+
+    if kernels_path.exists() and kernels_path.is_dir():
+        table = Table(title="kernelspec")
+
+        table.add_column("Name", justify="right", style="magenta", no_wrap=True)
+        table.add_column("Path", justify="right", style="green")
+
+        for k in kernels_path.glob("*"):
+            if k.is_dir():
+                continue
+            table.add_row(k.name, str(k))
+        rich.print(table)
+    else:
+        rich.print(f"[red]WARNING[/red]: kernelspec dir not exist? check ('{str(kernels_path)}')")
+
+
 def install(args: Namespace) -> int:
+    kernels_path_str = args.kernels_path
+    if not kernels_path_str:
+        raise ValueError("--kernels-path must not empty")
+    kernels_path = Path(kernels_path_str)
+
+    if bool(args.list):
+        _show_installed_kernelspecs_by_rich(kernels_path)
+        return 0
+
     system_type = platform.system()
     store_path = user_kernelspec_store(system_type)
     ensure_kernelspec_store_exists(store_path)
@@ -137,17 +171,13 @@ def install(args: Namespace) -> int:
         interrupt_mode=InterruptMode.message,
     )
 
-    kernels_path_str = args.kernels_path
-    if not kernels_path_str:
-        raise ValueError("--language must not empty")
-
     force = bool(args.force)
 
     # docker_client = docker.from_env()
     # kernel_id = image_digest(docker_client, args.image_name)
     # location = kernelspec_dir(store_path, kernel_id)
 
-    location = Path(kernels_path_str) / name
+    location = kernels_path / name
     install_kernelspec(location, kernelspec, force=force)
     # TODO: bare numbered exit statusses seem bad
     return 0
