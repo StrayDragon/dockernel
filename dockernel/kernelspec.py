@@ -10,9 +10,9 @@ import os
 import string
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
-from .version import version as dockernel_version
+from . import version as dockernel_version
 
 KERNELSPEC_FILENAME = "kernel.json"
 KERNELSPEC_STORE_DIRNAME = "kernels"
@@ -42,7 +42,7 @@ class Kernelspec:
         env: Optional[str] = None,
         metadata: Optional[dict[str, str]] = None,
     ) -> None:
-        self._spec = {}
+        self._spec: dict[str, Any] = {}
         self._spec["argv"] = argv
         self._spec["display_name"] = display_name
         self._spec["language"] = language
@@ -54,7 +54,7 @@ class Kernelspec:
         if metadata is not None:
             self._spec["metadata"] = metadata
 
-    def json(self):
+    def json(self) -> str:
         return json.dumps(self._spec)
 
 
@@ -85,7 +85,7 @@ def user_kernelspec_store(system_type: str) -> Path:
     if system_type == "Linux":
         kernelspec_dir_path = "~/.local/share/jupyter/kernels"
     elif system_type == "Windows":
-        kernelspec_dir_path = os.getenv("APPDATA") + r"\jupyter\kernels"
+        kernelspec_dir_path = (os.getenv("APPDATA") or "") + r"\jupyter\kernels"
     elif system_type == "Darwin":
         kernelspec_dir_path = "~/Library/Jupyter/kernels"
     else:
