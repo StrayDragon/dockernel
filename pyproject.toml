@@ -60,6 +60,10 @@ disallow_untyped_defs = true
 module = ["docker"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["rich", "rich.table"]
+ignore_missing_imports = true
+
 [tool.ruff]
 line-length = 120
 

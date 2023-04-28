@@ -94,16 +94,18 @@ def generate_kernelspec_argv(
     system_type: str,
     docker_volumes: str = "",
 ) -> list[str]:
+    opt_docker_volumes = []
+    if docker_volumes:
+        opt_docker_volumes = [
+            "-v",
+            docker_volumes,
+        ]
+
     dockernel_argv = _flatten(
         [
             "dockernel",
             "start",
-            [
-                "-v",
-                docker_volumes,
-            ]
-            if docker_volumes
-            else [],
+            opt_docker_volumes,
             image_name,
             JUPYTER_CONNECTION_FILE_TEMPLATE,
         ]
@@ -152,15 +154,16 @@ def install(args: Namespace) -> int:
     if not docker_volumes:
         docker_volumes = ""
 
+    image_name = str(args.image_name) if args.image_name and str(args.image_name).strip() else ""
+    name = str(args.name if args.name and str(args.name).strip() else image_name).strip()
+    if not name:
+        raise ValueError("--image-name or --name must not empty")
+
     argv = generate_kernelspec_argv(
-        args.image_name,
+        image_name,
         system_type,
         docker_volumes=docker_volumes,
     )
-
-    name = args.image_name if args.name is None else args.name
-    if not name:
-        raise ValueError("--image_name or --name must not empty")
 
     language = args.language
     if not language:

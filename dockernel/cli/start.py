@@ -1,11 +1,10 @@
-from ast import arg, parse
 import json
 from argparse import Namespace
 from pathlib import Path
 
 import docker
 
-from .main import subparsers, set_subcommand_func
+from .main import set_subcommand_func, subparsers
 
 arguments = subparsers.add_parser(__name__.split(".")[-1], help="Start a dockernel.")
 
@@ -29,7 +28,7 @@ CONTAINER_CONNECTION_SPEC_PATH = "/kernel-connection-spec.json"
 CONTAINER_CONNECTION_SPEC_ENV_VAR = "DOCKERNEL_CONNECTION_FILE"
 
 
-def set_connection_ip(connection_file: Path, ip: str = "0.0.0.0"):
+def set_connection_ip(connection_file: Path, ip: str = "0.0.0.0") -> dict:
     """Set/update ip field in connection file"""
 
     connection = json.loads(connection_file.read_text())
