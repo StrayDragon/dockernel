@@ -2,7 +2,7 @@ import platform
 import sys
 from argparse import Namespace
 from pathlib import Path
-from typing import Union
+from typing import TypeVar, Union
 
 import docker
 import rich
@@ -136,6 +136,18 @@ def _show_installed_kernelspecs_by_rich(kernels_path: Path) -> None:
         rich.print(f"[red]WARNING[/red]: kernelspec dir not exist? check ' {str(kernels_path)} '!")
 
 
+T = TypeVar("T")
+
+
+def _nvl(v: T, default_v: T) -> T:
+    if not v:
+        return default_v
+    if isinstance(v, str):
+        if not v.strip():
+            return default_v
+    return v
+
+
 def install(args: Namespace) -> int:
     kernels_path_str = args.kernels_path
     if not kernels_path_str:
@@ -154,10 +166,14 @@ def install(args: Namespace) -> int:
     if not docker_volumes:
         docker_volumes = ""
 
-    image_name = str(args.image_name) if args.image_name and str(args.image_name).strip() else ""
-    name = str(args.name if args.name and str(args.name).strip() else image_name).strip()
-    if not name:
+    image_name: str = _nvl(args.image_name, "")
+    name: str = _nvl(args.name, "")
+    if not name and not image_name:
         raise ValueError("--image-name or --name must not empty")
+    elif name and not image_name:
+        image_name = name
+    elif image_name and not name:
+        name = image_name
 
     argv = generate_kernelspec_argv(
         image_name,
